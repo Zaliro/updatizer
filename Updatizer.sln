@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Updatizer", "Updatizer\Updatizer.csproj", "{AE15CDB8-A323-4066-B632-5B7458AA62C2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Updatizer.Shared", "Updatizer.Shared\Updatizer.Shared.csproj", "{B381E7B4-89DE-4382-BE9A-186FCD2E35F4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Updatizer.Core", "Updatizer.Core\Updatizer.Core.csproj", "{423F37DA-4D7D-4E94-96BB-6514C3589E06}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AE15CDB8-A323-4066-B632-5B7458AA62C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE15CDB8-A323-4066-B632-5B7458AA62C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE15CDB8-A323-4066-B632-5B7458AA62C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE15CDB8-A323-4066-B632-5B7458AA62C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B381E7B4-89DE-4382-BE9A-186FCD2E35F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B381E7B4-89DE-4382-BE9A-186FCD2E35F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B381E7B4-89DE-4382-BE9A-186FCD2E35F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B381E7B4-89DE-4382-BE9A-186FCD2E35F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{423F37DA-4D7D-4E94-96BB-6514C3589E06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{423F37DA-4D7D-4E94-96BB-6514C3589E06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{423F37DA-4D7D-4E94-96BB-6514C3589E06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{423F37DA-4D7D-4E94-96BB-6514C3589E06}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

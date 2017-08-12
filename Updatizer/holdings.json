@@ -1,0 +1,36 @@
+{
+	"UpdateInterval": 10,
+	"TargetCurrency": "USD",
+	"Wallets": [
+		{
+			"Label": "Wallet 1",
+			"Holdings": [
+				{
+					"Name": "BTC",
+					"Value": 1
+				},
+				{
+					"Name": "ETH",
+					"Value": 20
+				},
+				{
+					"Name": "NEO",
+					"Value": 300
+				}
+			]
+		},
+		{
+			"Label": "Wallet 2",
+			"Holdings": [
+				{
+					"Name": "BTC",
+					"Value": 5
+				},
+				{
+					"Name": "PART",
+					"Value": 450
+				}
+			]
+		}
+	]
+}
