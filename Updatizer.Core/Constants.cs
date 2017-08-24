@@ -9,9 +9,13 @@ namespace Updatizer.Core
     public static class Constants
     {
         // Configuration
-        public const string VERSION = "1.0.0.0";
+        public const string VERSION = "1.0.1.0";
         public const int MIN_UPDATE_INTERVAL = 10;
         public const string HOLDINGS_FILE_NAME = "holdings.json";
+
+        // Currencies
+        public const string BTC_CURRENCY_HEADER = "BTC";
+        public const string USD_CURRENCY_HEADER = "USD";
 
         // API Endpoints - Fixer.io
         public const string FIXER_BASE_URL = "http://api.fixer.io";

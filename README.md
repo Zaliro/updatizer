@@ -2,7 +2,7 @@
 Updatizer is a rudimentary way to follow your assets value.
 
 <p align="left">
-  <img src="http://i.imgur.com/ZB5pJEW.gif"/>
+  <img src="http://i.imgur.com/n9wwZKh.gif"/>
 </p>
 
 ## Configuration

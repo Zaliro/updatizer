@@ -12,8 +12,12 @@ namespace Updatizer
 {
     class Program
     {
+        const int CURRENCIES_PER_LINE = 3;
+
         static UpdatizerStatusEnum status;
         static int counter = 0;
+
+        static int currenciesInformationsLinesCount = 0;
 
         static void Main(string[] args)
         {
@@ -30,6 +34,7 @@ namespace Updatizer
             try
             {
                 Core.Updatizer.Instance.OnStatusChanged += onStatusChanged;
+                Core.Updatizer.Instance.OnCurrenciesUpdated += onCurrenciesUpdated;
                 Core.Updatizer.Instance.OnWalletsUpdated += onWalletsUpdated;
 
                 Core.Updatizer.Instance.Initialize();
@@ -70,7 +75,7 @@ namespace Updatizer
                     }
 
                     Thread.Sleep(100);
-                    Console.SetCursorPosition(Console.CursorLeft - 1, Console.CursorTop);
+                    try { Console.SetCursorPosition(Console.CursorLeft - 1, Console.CursorTop); } catch { };
                 }
             });
         }
@@ -84,21 +89,66 @@ namespace Updatizer
             clearLine(0, 6);
             string statusText = string.Format("Status : {0}", status);
             Logger.Instance.Debug(statusText);
+
             Console.SetCursorPosition(statusText.Length + 9, 6);
+            Thread.Sleep(100);
 
             turn();
+        }
+
+        private static void onCurrenciesUpdated(RealCurrenciesEnum realCurrency, double targetCurrencyRate, double lastBTCPrice, List<CurrencyEntry> currencies)
+        {
+            int lineIndex = 1;
+            int currentLine = 0;
+
+            string[] currenciesInformations = new string[(currencies.Count + CURRENCIES_PER_LINE - 1) / CURRENCIES_PER_LINE];
+
+            for (int i = 0; i < currencies.Count; i++)
+            {
+                if (lineIndex % CURRENCIES_PER_LINE == 0)
+                {
+                    currenciesInformations[currentLine] = currenciesInformations[currentLine] + string.Format("{0} : {1:N2} {2}.", currencies[i].Name,
+                       (currencies[i].Name != Constants.BTC_CURRENCY_HEADER ? (currencies[i].LastEstimate * lastBTCPrice) : currencies[i].LastEstimate) * targetCurrencyRate, realCurrency.ToString());
+
+                    currentLine += 1;
+                    lineIndex = 1;
+                }
+                else
+                {
+                    if ((i + 1) == currencies.Count)
+                    {
+                        currenciesInformations[currentLine] = currenciesInformations[currentLine] + string.Format("{0} : {1:N2} {2}.", currencies[i].Name,
+                        (currencies[i].Name != Constants.BTC_CURRENCY_HEADER ? (currencies[i].LastEstimate * lastBTCPrice) : currencies[i].LastEstimate) * targetCurrencyRate, realCurrency.ToString());
+                    }
+                    else
+                    {
+                        currenciesInformations[currentLine] = currenciesInformations[currentLine] + string.Format("{0} : {1:N2} {2} - ", currencies[i].Name,
+                        (currencies[i].Name != Constants.BTC_CURRENCY_HEADER ? (currencies[i].LastEstimate * lastBTCPrice) : currencies[i].LastEstimate) * targetCurrencyRate, realCurrency.ToString());
+                    }
+
+                    lineIndex++;
+                }
+            }
+
+            currenciesInformationsLinesCount = currenciesInformations.Length;
+
+            for (int i = 0; i < currenciesInformations.Length; i++)
+            {
+                clearLine(0, 8 + i);
+                Logger.Instance.Info(currenciesInformations[i]);
+            }
         }
 
         private static void onWalletsUpdated(RealCurrenciesEnum realCurrency, List<WalletEntry> wallets)
         {
             for (int i = 0; i < wallets.Count; i++)
             {
-                clearLine(0, 7 + i);
+                clearLine(0, 9  + currenciesInformationsLinesCount + i);
 
                 var wallet = wallets[i];
 
                 StringBuilder walletInformationsBuilder = new StringBuilder();
-                walletInformationsBuilder.AppendFormat("{0} : {1:N2} {2}", wallet.Label, wallet.LastRealEstimate, realCurrency);
+                walletInformationsBuilder.AppendFormat("{0} : {1:N2} {2}.", wallet.Label, wallet.LastRealEstimate, realCurrency);
                 
                 if(wallet.MissingCurrencies)
                 {

@@ -18,10 +18,7 @@ namespace Updatizer.Core
     {
         public Action<UpdatizerStatusEnum> OnStatusChanged { get; set; }
         public Action<RealCurrenciesEnum, List<WalletEntry>> OnWalletsUpdated { get; set; }
-
-        private const string BTC_PRICE_REFERENT = "_BTC";
-        private const string BTC_CURRENCY_HEADER = "BTC";
-        private const string USD_CURRENCY_HEADER = "USD";
+        public Action<RealCurrenciesEnum, double, double, List<CurrencyEntry>> OnCurrenciesUpdated { get; set; }
 
         private Timer updateTimer;
 
@@ -74,7 +71,7 @@ namespace Updatizer.Core
         private void registerCurrencies()
         {
             this.currenciesCache = new Dictionary<string, CurrencyEntry>();
-            this.currenciesCache.Add(BTC_PRICE_REFERENT, new CurrencyEntry() { Name = BTC_PRICE_REFERENT });
+            this.currenciesCache.Add(Constants.BTC_CURRENCY_HEADER, new CurrencyEntry() { Name = Constants.BTC_CURRENCY_HEADER });
 
             foreach (WalletEntry wallet in StorageManager.HoldingsFile.Wallets)
             {
@@ -130,6 +127,9 @@ namespace Updatizer.Core
                     await this.retrieveCurrencyPrice(currency.Value);
                 }
 
+                this.OnCurrenciesUpdated?.Invoke(StorageManager.HoldingsFile.TargetCurrency, this.targetCurrencyRate, this.currenciesCache[Constants.BTC_CURRENCY_HEADER].LastEstimate,
+                    this.currenciesCache.Values.ToList());
+
                 // Calculating wallets BTC values...
                 foreach(var wallet in StorageManager.HoldingsFile.Wallets)
                 {
@@ -138,7 +138,7 @@ namespace Updatizer.Core
 
                     foreach(var currency in wallet.Holdings)
                     {
-                        if (currency.Name != BTC_PRICE_REFERENT || currency.Name != BTC_CURRENCY_HEADER || currency.Value > 0)
+                        if (currency.Name != Constants.BTC_CURRENCY_HEADER && currency.Value > 0)
                         {
                             double currencyBTCLastEstimate = this.currenciesCache[currency.Name].LastEstimate;
                             currency.LastEstimate = currencyBTCLastEstimate;
@@ -156,18 +156,18 @@ namespace Updatizer.Core
                     }
 
                     // If wallet contains BTC...
-                    var walletBTCCurrency = wallet.Holdings.FirstOrDefault(x => x.Name == BTC_CURRENCY_HEADER);
+                    var walletBTCCurrency = wallet.Holdings.FirstOrDefault(x => x.Name == Constants.BTC_CURRENCY_HEADER);
                     if (walletBTCCurrency != null)
                     {
                         wallet.LastBTCEstimate += walletBTCCurrency.Value;
                     }
 
                     // Calculating wallet value in target currency...
-                    double walletUSDEstimate = wallet.LastBTCEstimate * this.currenciesCache[BTC_PRICE_REFERENT].LastEstimate;
+                    double walletUSDEstimate = wallet.LastBTCEstimate * this.currenciesCache[Constants.BTC_CURRENCY_HEADER].LastEstimate;
                     wallet.LastRealEstimate = walletUSDEstimate * this.targetCurrencyRate;
                 }
 
-                this.OnWalletsUpdated(StorageManager.HoldingsFile.TargetCurrency, StorageManager.HoldingsFile.Wallets);
+                this.OnWalletsUpdated?.Invoke(StorageManager.HoldingsFile.TargetCurrency, StorageManager.HoldingsFile.Wallets);
             });
         }
 
@@ -175,7 +175,7 @@ namespace Updatizer.Core
         {
             await Task.Run(async () =>
             {
-                if (currency.Name != BTC_PRICE_REFERENT && currency.Name != BTC_CURRENCY_HEADER && !this.getCurrencyStatus(currency.Name))
+                if (currency.Name != Constants.BTC_CURRENCY_HEADER && !this.getCurrencyStatus(currency.Name))
                 {
                     RestRequest getMarketSummaryRequest = new RestRequest(string.Format(Constants.BITTREX_GET_MARKET_SUMMARY, currency.Name), Method.GET);
 
@@ -203,11 +203,11 @@ namespace Updatizer.Core
                 IRestResponse<BittrexResponse> response = await this.bittrexClient.ExecuteGetTaskAsync<BittrexResponse>(getUsdtBtcSummaryRequest);
                 if (response.StatusCode == System.Net.HttpStatusCode.OK && response.Data.Success)
                 {
-                    this.currenciesCache[BTC_PRICE_REFERENT].LastEstimate = (double)((Dictionary<string, object>)response.Data.Result[0])["Last"];
+                    this.currenciesCache[Constants.BTC_CURRENCY_HEADER].LastEstimate = (double)((Dictionary<string, object>)response.Data.Result[0])["Last"];
                 }
                 else
                 {
-                    throw new Exception(string.Format("Unable to retrieve {0}-BTC value !", USD_CURRENCY_HEADER));
+                    throw new Exception(string.Format("Unable to retrieve {0}-BTC value !", Constants.USD_CURRENCY_HEADER));
                 }
             });
         }
@@ -216,7 +216,7 @@ namespace Updatizer.Core
         {
             await Task.Run(async () =>
             {
-                RestRequest getLatest = new RestRequest(string.Format(Constants.FIXER_GET_LATEST, USD_CURRENCY_HEADER, StorageManager.HoldingsFile.TargetCurrency), Method.GET);
+                RestRequest getLatest = new RestRequest(string.Format(Constants.FIXER_GET_LATEST, Constants.USD_CURRENCY_HEADER, StorageManager.HoldingsFile.TargetCurrency), Method.GET);
 
                 IRestResponse<FixerLatestResponse> response = await this.fixerClient.ExecuteGetTaskAsync<FixerLatestResponse>(getLatest);
                 if (response.StatusCode == System.Net.HttpStatusCode.OK)
@@ -225,7 +225,7 @@ namespace Updatizer.Core
                 }
                 else
                 {
-                    throw new Exception(string.Format("Unable to retrieve {0}-{1} rate !", USD_CURRENCY_HEADER, StorageManager.HoldingsFile.TargetCurrency));
+                    throw new Exception(string.Format("Unable to retrieve {0}-{1} rate !", Constants.USD_CURRENCY_HEADER, StorageManager.HoldingsFile.TargetCurrency));
                 }
             });
         }
